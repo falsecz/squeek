@@ -24,10 +24,20 @@ class Query
 
 		arr.join ' ' + operator + ' '
 
-	parseNode: (node)=>
-		unless typeof node is 'object'
-			return '"' + node + '"'
+	escapeVal: (val) =>
+		return val if typeof val is 'number'
+		return '"' + val + '"'
 		
+	parseNode: (node)=>
+		if node instanceof Array
+			node = node.map (item) =>
+				@escapeVal item
+			
+			return '(' + node.join(', ') + ')'
+			
+		# console.log typeof node
+		unless typeof node is 'object'
+			return @escapeVal node
 		out = []
 		
 		for key, val of node
@@ -43,6 +53,7 @@ class Query
 		out.join ' '
 
 	toSQL: =>
+		console.log util.inspect @query, no, 10, yes
 		@parseNode(@query)
 			
 
